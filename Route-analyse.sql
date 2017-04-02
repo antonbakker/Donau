@@ -7,12 +7,92 @@ ExactBetaaltermijn,
 Vervaldatum,
 ExtReferentie,
 Factuurbedrag,
+Status,
 Inboeker,
+Rownr,
+Interval,
 Budgethouder,
-Interval
-/*Rownr,
-Resterend*/
+Resterend
 
+FROM
+(SELECT
+dfa.[DFA_ADMINISTRATIE].OMSCHRIJVING AS Werkmaatschappij,
+dfa.[DFA_RELATIE].NAAM AS Relatie,
+CAST(dfa.[DFA_DOCUMENT].DOCUMENTDATUM AS DATE) AS Factuurdatum,
+
+case dfa.[DFA_RELATIE].BETAALTERMIJN
+	when 'GR' then 50
+	else dfa.[DFA_RELATIE].BETAALTERMIJN
+end AS ExactBetaaltermijn,
+
+CAST(dfa.[DFA_DOCUMENT].DOCUMENTDATUM +
+(case dfa.[DFA_RELATIE].BETAALTERMIJN
+when 'GR' then 50
+else dfa.[DFA_RELATIE].BETAALTERMIJN
+end) AS DATE) AS Vervaldatum,
+
+dfa.[DFA_DOCUMENT].[EXTERNE_REFERENTIE] AS ExtReferentie,
+dfa.[DFA_DOCUMENT].BRUTOBEDRAG AS Factuurbedrag,
+dfa.[DFA_DOCUMENT].INBOEKER AS Inboeker,
+dfa.[DFA_DOCUMENT].AKK_BUDGETHOUDER AS Status,
+
+ROW_NUMBER() over(PARTITION BY dfa.[DFA_DOCUMENT].DOCUMENTNR ORDER BY dfa.[DFA_SUBSCRIPTION_PROFILE_EVENT].ID ASC) AS Rownr,
+dfa.[WMS_GEBRCODE].[GEBR_OMS] AS Budgethouder,
+CAST(dfa.[DFA_SUBSCRIPTION_PROFILE_EVENT].CREATIONDATE - dfa.[DFA_DOCUMENT].DOCUMENTDATUM AS INT) AS Interval,
+
+/*dfa.[DFA_DOCUMENT].DOCUMENTNR,
+dfa.[DFA_SUBSCRIPTION_PROFILE_EVENT].ID, */
+
+CAST(dfa.[DFA_DOCUMENT].DOCUMENTDATUM +
+(case dfa.[DFA_RELATIE].BETAALTERMIJN
+when 'GR' then 50
+else dfa.[DFA_RELATIE].BETAALTERMIJN
+end) - dfa.[DFA_SUBSCRIPTION_PROFILE_EVENT].CREATIONDATE AS INT) AS Resterend
+
+FROM
+dfa.[DFA_DOCUMENT]
+JOIN dfa.[DFA_SUBSCRIPTION_PROFILE_EVENT]
+ON dfa.[DFA_DOCUMENT].DOCUMENTNR = dfa.[DFA_SUBSCRIPTION_PROFILE_EVENT].DOCUMENTNR
+JOIN dfa.[WMS_GEBRCODE]
+ON dfa.[DFA_SUBSCRIPTION_PROFILE_EVENT].GEBRCODE = dfa.[WMS_GEBRCODE].GEBRCODE
+JOIN dfa.[DFA_ADMINISTRATIE]
+ON dfa.[DFA_DOCUMENT].[ID_ADMINISTRATIE] = dfa.[DFA_ADMINISTRATIE].[ID_ADMINISTRATIE]
+JOIN dfa.[DFA_RELATIE]
+ON dfa.[DFA_DOCUMENT].[ID_RELATIE] = dfa.[DFA_RELATIE].[ID_RELATIE]
+/*WHERE
+dfa.[DFA_DOCUMENT].DOCUMENTNR IN (500,501,502)*/
+) AS SUB
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT
+Werkmaatschappij,
+Relatie,
+Werkmaatschappij,
+Factuurdatum,
+ExactBetaaltermijn,
+Vervaldatum,
+ExtReferentie,
+Factuurbedrag,
+Inboeker,
+/*Budgethouder,*/
+Interval,
+/*Rownr,*/
+Resterend,
+[1],[2],[3],[4],[5],[6],[7],[8],[9],[10]
 
 FROM
 (SELECT
@@ -64,8 +144,8 @@ dfa.[DFA_DOCUMENT].DOCUMENTNR IN (500,501,502)
 
 PIVOT
 (
-SUM(Resterend)
-FOR Rownr IN ([1],[2],[3])
+count(Budgethouder)
+FOR Rownr IN ([1],[2],[3],[4],[5],[6],[7],[8],[9],[10])
 ) AS PVT
 
 
