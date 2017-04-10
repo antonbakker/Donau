@@ -3,6 +3,10 @@ Werkmaatschappij,
 Relatie,
 Werkmaatschappij,
 Factuurdatum,
+Jaar,
+Kwartaal,
+Maand,
+Dag,
 ExactBetaaltermijn,
 Vervaldatum,
 ExtReferentie,
@@ -20,6 +24,10 @@ FROM
 dfa.[DFA_ADMINISTRATIE].OMSCHRIJVING AS Werkmaatschappij,
 dfa.[DFA_RELATIE].NAAM AS Relatie,
 CAST(dfa.[DFA_DOCUMENT].DOCUMENTDATUM AS DATE) AS Factuurdatum,
+DATEPART(yyyy, dfa.[DFA_DOCUMENT].DOCUMENTDATUM) AS Jaar,
+DATEPART(qq, dfa.[DFA_DOCUMENT].DOCUMENTDATUM) AS Kwartaal,
+DATEPART(mm, dfa.[DFA_DOCUMENT].DOCUMENTDATUM) AS Maand,
+DATEPART(dd, dfa.[DFA_DOCUMENT].DOCUMENTDATUM) AS Dag,
 
 case dfa.[DFA_RELATIE].BETAALTERMIJN
 	when 'GR' then 50
