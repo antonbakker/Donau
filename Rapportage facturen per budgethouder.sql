@@ -1,6 +1,6 @@
 SELECT
   Gebruiker,
-  [Ja] AS Vervallen,
+  count(Documentnummer)
   [Nee] AS NietVervallen
 
 
@@ -56,11 +56,5 @@ FROM
       JOIN dfa.[WMS_STAP] ON dfa.[DFA_V_RAPPORTAGES].STAPNR = dfa.[WMS_STAP].STAPNR
   ) AS QVervallen
 
-PIVOT
-  (
-    COUNT(QVervallen.Documentnummer)
-    FOR QVervallen.Vervallen IN ([Ja], [Nee])
-  ) AS PivotTable
-
-ORDER BY
-  PivotTable.Gebruiker
+Group by
+  Gebruiker
